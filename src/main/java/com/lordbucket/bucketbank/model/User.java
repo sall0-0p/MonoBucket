@@ -22,9 +22,6 @@ public class User {
     private String pinHash;
 
     @Column
-    private UUID salt = UUID.randomUUID();
-
-    @Column
     private boolean suspended = false;
 
     @OneToMany(mappedBy="owner", cascade=CascadeType.ALL)
@@ -32,6 +29,10 @@ public class User {
 
     @ManyToMany(mappedBy="authorizedUsers")
     private Set<Account> accessibleAccounts = new HashSet<>();
+
+    @OneToOne(optional=false, cascade = CascadeType.ALL)
+    @JoinColumn(name = "account_id", unique = true)
+    private Account primaryAccount;
 
     @CreatedDate
     @Temporal(TemporalType.TIMESTAMP)
@@ -55,13 +56,11 @@ public class User {
         return pinHash;
     }
 
-    public UUID getSalt() {
-        return salt;
-    }
-
     public boolean isSuspended() {
         return suspended;
     }
+
+    public Account getPrimaryAccount() { return primaryAccount; }
 
     public List<Account> getAccountsOwned() {
         return accountsOwned;
@@ -89,6 +88,8 @@ public class User {
         this.suspended = suspended;
     }
 
+    public void setPrimaryAccount(Account account) { this.primaryAccount = account; }
+
     public void setAccountsOwned(List<Account> accountsOwned) {
         this.accountsOwned = accountsOwned;
     }
@@ -103,7 +104,7 @@ public class User {
         if (o == null || getClass() != o.getClass()) return false;
 
         User user = (User) o;
-        return id == user.id && suspended == user.suspended && username.equals(user.username) && pinHash.equals(user.pinHash) && salt.equals(user.salt) && accountsOwned.equals(user.accountsOwned) && accessibleAccounts.equals(user.accessibleAccounts) && createdTimestamp.equals(user.createdTimestamp) && updateTimestamp.equals(user.updateTimestamp);
+        return id == user.id && suspended == user.suspended && username.equals(user.username) && pinHash.equals(user.pinHash) && accountsOwned.equals(user.accountsOwned) && accessibleAccounts.equals(user.accessibleAccounts) && createdTimestamp.equals(user.createdTimestamp) && updateTimestamp.equals(user.updateTimestamp);
     }
 
     @Override
@@ -117,7 +118,6 @@ public class User {
                 "id=" + id +
                 ", username='" + username + '\'' +
                 ", pinHash='" + pinHash + '\'' +
-                ", salt=" + salt +
                 ", suspended=" + suspended +
                 ", accountsOwned=" + accountsOwned +
                 ", accessibleAccounts=" + accessibleAccounts +

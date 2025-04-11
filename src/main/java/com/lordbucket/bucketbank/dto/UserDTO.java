@@ -12,6 +12,7 @@ public class UserDTO {
     private final int id;
     private final String username;
     private final boolean suspended;
+    private final AccountSummaryDTO primaryAccount;
     private final List<AccountSummaryDTO> accountsOwned;
     private final Set<AccountSummaryDTO> accessibleAccounts;
     private final Date createdTimestamp;
@@ -21,6 +22,7 @@ public class UserDTO {
         this.id = user.getId();
         this.username = user.getUsername();
         this.suspended = user.isSuspended();
+        this.primaryAccount = new AccountSummaryDTO(user.getPrimaryAccount());
         this.accountsOwned = user.getAccountsOwned()
                 .stream()
                 .map(AccountSummaryDTO::new)
@@ -44,6 +46,8 @@ public class UserDTO {
     public boolean isSuspended() {
         return suspended;
     }
+
+    public AccountSummaryDTO getPrimaryAccount() { return primaryAccount; }
 
     public List<AccountSummaryDTO> getAccountsOwned() {
         return accountsOwned;

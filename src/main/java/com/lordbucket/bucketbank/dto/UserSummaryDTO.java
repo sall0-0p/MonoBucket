@@ -6,11 +6,13 @@ public class UserSummaryDTO {
     private int id;
     private String username;
     private boolean suspended;
+    private String primaryAccount;
 
     public UserSummaryDTO(User user) {
         this.id = user.getId();
         this.username = user.getUsername();
         this.suspended = user.isSuspended();
+        this.primaryAccount = user.getPrimaryAccount().getCardNumber();
     }
 
     public int getId() {
@@ -24,6 +26,8 @@ public class UserSummaryDTO {
     public boolean isSuspended() {
         return suspended;
     }
+
+    public String getPrimaryAccount() { return primaryAccount; };
 
     @Override
     public boolean equals(Object o) {

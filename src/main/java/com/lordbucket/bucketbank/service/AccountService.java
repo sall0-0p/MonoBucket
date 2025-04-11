@@ -4,6 +4,7 @@ import com.lordbucket.bucketbank.model.Account;
 import com.lordbucket.bucketbank.model.User;
 import com.lordbucket.bucketbank.repository.AccountRepository;
 import com.lordbucket.bucketbank.repository.UserRepository;
+import com.lordbucket.bucketbank.util.exceptions.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,7 @@ public class AccountService {
         this.accountRepository = accountRepository;
     }
 
-    public Account createAccount(int userId) throws IllegalArgumentException {
+    public Account createAccount(int userId) throws UserNotFoundException {
         User owner = getUserById(userId);
 
         Account account = new Account();
@@ -31,11 +32,20 @@ public class AccountService {
     }
 
     @Transactional
-    public Account deposit(int accountId, BigDecimal amount) throws IllegalArgumentException {
+    public Account deposit(int accountId, BigDecimal amount)
+            throws InvalidAmountException, AccountSuspendedException {
         Account account = getAccountById(accountId);
 
         if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Deposited amount has to be positive.");
+            throw new InvalidAmountException("Deposited amount has to be positive.");
+        }
+
+        if (amount.scale() > 2) {
+            throw new InvalidAmountException("The precision of amounts in operations is limited by 1 cent.");
+        }
+
+        if (account.isSuspended()) {
+            throw new AccountSuspendedException();
         }
 
         account.setBalance(account.getBalance().add(amount));
@@ -45,11 +55,15 @@ public class AccountService {
     }
 
     @Transactional
-    public Account withdraw(int accountId, BigDecimal amount) throws IllegalArgumentException {
+    public Account withdraw(int accountId, BigDecimal amount) throws InvalidAmountException {
         Account account = getAccountById(accountId);
 
         if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Withdrawn amount has to be positive.");
+            throw new InvalidAmountException("Withdrawn amount has to be positive.");
+        }
+
+        if (amount.scale() > 2) {
+            throw new InvalidAmountException("The precision of amounts in operations is limited by 1 cent.");
         }
 
         account.setBalance(account.getBalance().subtract(amount));
@@ -59,12 +73,29 @@ public class AccountService {
     }
 
     @Transactional
-    public void transfer(int senderAccountId, int receiverAccountId, BigDecimal amount, String note) throws IllegalArgumentException {
+    public void transfer(int senderAccountId, int receiverAccountId, BigDecimal amount, String note)
+            throws InsufficientFundsException, AccountSuspendedException {
         Account sender = getAccountById(senderAccountId);
         Account receiver = getAccountById(receiverAccountId);
 
+        if (sender.isSuspended()) {
+            throw new AccountSuspendedException("Sender account is suspended.");
+        }
+
+        if (receiver.isSuspended()) {
+            throw new AccountSuspendedException("Receiver account is suspended.");
+        }
+
+        if (amount.scale() > 2) {
+            throw new InvalidAmountException("The precision of amounts in operations is limited by 1 cent.");
+        }
+
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new InvalidAmountException("Transfer amount has to be positive.");
+        }
+
         if (sender.getBalance().subtract(amount).compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Insufficient funds");
+            throw new InsufficientFundsException();
         }
 
         sender.setBalance(sender.getBalance().subtract(amount));
@@ -75,7 +106,7 @@ public class AccountService {
         accountRepository.save(receiver);
     }
 
-    public Account suspend(int accountId) throws IllegalArgumentException {
+    public Account suspend(int accountId) throws AccountNotFoundException {
         Account account = getAccountById(accountId);
 
         account.setSuspended(true);
@@ -83,21 +114,28 @@ public class AccountService {
         return accountRepository.save(account);
     }
 
-    public Account reinstate(int accountId) throws IllegalArgumentException {
+    public Account reinstate(int accountId) throws AccountNotFoundException {
         Account account = getAccountById(accountId);
         account.setSuspended(false);
 
         return accountRepository.save(account);
     }
 
-    public Account rename(int accountId, String newDisplayName) throws IllegalArgumentException {
+    public Account rename(int accountId, String newDisplayName)
+            throws AccountNotFoundException, AccountSuspendedException {
         Account account = getAccountById(accountId);
+
+        if (account.isSuspended()) {
+            throw new AccountSuspendedException();
+        }
+
         account.setDisplayName(newDisplayName);
 
         return accountRepository.save(account);
     }
 
-    public boolean isUserAuthorised(int userId, int accountId) throws IllegalArgumentException {
+    public boolean isUserAuthorised(int userId, int accountId)
+            throws AccountNotFoundException, UserNotFoundException {
         User user = getUserById(userId);
         Account account = getAccountById(accountId);
 
@@ -106,21 +144,30 @@ public class AccountService {
     }
 
     @Transactional
-    public Account giveUserAccessToAccount(int userId, int accountId) throws IllegalArgumentException {
+    public Account giveUserAccessToAccount(int userId, int accountId)
+            throws AccountNotFoundException, UserNotFoundException, AccountSuspendedException {
         User user = getUserById(userId);
         Account account = getAccountById(accountId);
 
-        account.getAuthorizedUsers().add(user);
+        if (account.isSuspended()) {
+            throw new AccountSuspendedException();
+        }
 
+        account.getAuthorizedUsers().add(user);
         // TODO: Log access given
 
         return accountRepository.save(account);
     }
 
     @Transactional
-    public Account removeUserAccessToAccount(int userId, int accountId) throws IllegalArgumentException {
+    public Account removeUserAccessToAccount(int userId, int accountId)
+            throws AccountNotFoundException, UserNotFoundException, AccountSuspendedException {
         User user = getUserById(userId);
         Account account = getAccountById(accountId);
+
+        if (account.isSuspended()) {
+            throw new AccountSuspendedException();
+        }
 
         account.getAuthorizedUsers().remove(user);
         // TODO: Log access removed
@@ -129,10 +176,15 @@ public class AccountService {
     }
 
     @Transactional
-    public Account transferOwnershipOfAccount(int currentOwnerId, int accountId, int newOwnerId) {
+    public Account transferOwnershipOfAccount(int currentOwnerId, int accountId, int newOwnerId)
+            throws UserNotFoundException, AccountNotFoundException, AccountSuspendedException {
         Account account = getAccountById(accountId);
         User currentOwner = getUserById(currentOwnerId);
         User newOwner = getUserById(newOwnerId);
+
+        if (account.isSuspended()) {
+            throw new AccountSuspendedException();
+        }
 
         account.setOwner(newOwner);
         if (account.getAuthorizedUsers() != null) {
@@ -143,13 +195,13 @@ public class AccountService {
         return accountRepository.save(account);
     }
 
-    public Account getAccountById(int accountId) throws IllegalArgumentException {
+    public Account getAccountById(int accountId) throws AccountNotFoundException {
         return accountRepository.findById(accountId)
-                .orElseThrow(() -> new IllegalArgumentException("No account found"));
+                .orElseThrow(AccountNotFoundException::new);
     }
 
-    private User getUserById(int userId) throws IllegalArgumentException {
+    private User getUserById(int userId) throws UserNotFoundException {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("No user found."));
+                .orElseThrow(UserNotFoundException::new);
     }
 }
