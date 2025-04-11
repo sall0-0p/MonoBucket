@@ -1,0 +1,129 @@
+package com.lordbucket.bucketbank.model;
+
+import jakarta.persistence.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+
+@Entity
+@Table(name = "users")
+@EntityListeners(AuditingEntityListener.class)
+public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
+
+    @Column(nullable = false, unique = true, updatable = false)
+    private String username;
+
+    @Column(nullable = false)
+    private String pinHash;
+
+    @Column
+    private UUID salt = UUID.randomUUID();
+
+    @Column
+    private boolean suspended = false;
+
+    @OneToMany(mappedBy="owner", cascade=CascadeType.ALL)
+    private List<Account> accountsOwned;
+
+    @ManyToMany(mappedBy="authorizedUsers")
+    private Set<Account> accessibleAccounts;
+
+    @CreatedDate
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createdTimestamp;
+
+    @LastModifiedDate
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date updateTimestamp;
+
+    public User() {}
+
+    public int getId() {
+        return id;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPinHash() {
+        return pinHash;
+    }
+
+    public UUID getSalt() {
+        return salt;
+    }
+
+    public boolean isSuspended() {
+        return suspended;
+    }
+
+    public List<Account> getAccountsOwned() {
+        return accountsOwned;
+    }
+
+    public Set<Account> getAccessibleAccounts() {
+        return accessibleAccounts;
+    }
+
+    public Date getCreatedTimestamp() {
+        return createdTimestamp;
+    }
+
+    public Date getUpdateTimestamp() {
+        return updateTimestamp;
+    }
+
+    public void setPinHash(String pinHash) {
+        this.pinHash = pinHash;
+    }
+
+    public void setSuspended(boolean suspended) {
+        this.suspended = suspended;
+    }
+
+    public void setAccountsOwned(List<Account> accountsOwned) {
+        this.accountsOwned = accountsOwned;
+    }
+
+    public void setAccessibleAccounts(Set<Account> accessibleAccounts) {
+        this.accessibleAccounts = accessibleAccounts;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        User user = (User) o;
+        return id == user.id && suspended == user.suspended && username.equals(user.username) && pinHash.equals(user.pinHash) && salt.equals(user.salt) && accountsOwned.equals(user.accountsOwned) && accessibleAccounts.equals(user.accessibleAccounts) && createdTimestamp.equals(user.createdTimestamp) && updateTimestamp.equals(user.updateTimestamp);
+    }
+
+    @Override
+    public int hashCode() {
+        return id;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", pinHash='" + pinHash + '\'' +
+                ", salt=" + salt +
+                ", suspended=" + suspended +
+                ", accountsOwned=" + accountsOwned +
+                ", accessibleAccounts=" + accessibleAccounts +
+                ", createdTimestamp=" + createdTimestamp +
+                ", updateTimestamp=" + updateTimestamp +
+                '}';
+    }
+}
