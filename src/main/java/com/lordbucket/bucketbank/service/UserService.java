@@ -5,6 +5,8 @@ import com.lordbucket.bucketbank.model.User;
 import com.lordbucket.bucketbank.repository.AccountRepository;
 import com.lordbucket.bucketbank.repository.UserRepository;
 import com.lordbucket.bucketbank.util.HashUtil;
+import com.lordbucket.bucketbank.util.PINUtil;
+import com.lordbucket.bucketbank.util.exceptions.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,5 +40,61 @@ public class UserService {
         return userRepository.save(savedUser);
     }
 
+    public User findUserById(int userId) throws UserNotFoundException {
+        return getUserById(userId);
+    }
 
+    public User findUserByUsername(String username) throws UserNotFoundException {
+        return userRepository.findByUsername(username)
+                .orElseThrow(UserNotFoundException::new);
+    }
+
+    public boolean authenticate(int userId, String rawPIN)
+            throws HashingException, UserNotFoundException {
+        User user = getUserById(userId);
+        return HashUtil.validatePassword(rawPIN, user.getPinHash());
+    }
+
+    @Transactional
+    public User changePIN(int userId, String rawPIN, String newRawPIN)
+            throws FailedAuthenticationException, UserNotFoundException, HashingException, UserSuspendedException {
+        User user = getUserById(userId);
+
+        if (user.isSuspended()) {
+            throw new UserSuspendedException();
+        }
+
+        if (!HashUtil.validatePassword(rawPIN, user.getPinHash())) {
+            throw new FailedAuthenticationException();
+        }
+
+        user.setPinHash(HashUtil.generateHash(newRawPIN));
+        return userRepository.save(user);
+    }
+
+    @Transactional
+    public String resetPIN(int userId)
+            throws UserNotFoundException, HashingException, UserSuspendedException {
+        User user = getUserById(userId);
+
+        if (user.isSuspended()) {
+            throw new UserSuspendedException();
+        }
+
+        String newPIN = PINUtil.generatePIN();
+        user.setPinHash(HashUtil.generateHash(newPIN));
+        userRepository.save(user);
+
+        return newPIN;
+    }
+
+    public Account getAccountById(int accountId) throws AccountNotFoundException {
+        return accountRepository.findById(accountId)
+                .orElseThrow(AccountNotFoundException::new);
+    }
+
+    private User getUserById(int userId) throws UserNotFoundException {
+        return userRepository.findById(userId)
+                .orElseThrow(UserNotFoundException::new);
+    }
 }

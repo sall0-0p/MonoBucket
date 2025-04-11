@@ -1,6 +1,6 @@
 package com.lordbucket.bucketbank.model;
 
-import com.lordbucket.bucketbank.util.CreditCardUtil;
+import com.lordbucket.bucketbank.util.CardNumberUtil;
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -137,6 +137,6 @@ public class Account {
 
     @PostPersist
     public void assignCardNumber() {
-        this.cardNumber = CreditCardUtil.generateCardNumber(this.id);
+        this.cardNumber = CardNumberUtil.generateCardNumber(this.id);
     }
 }

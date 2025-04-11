@@ -1,6 +1,6 @@
 package com.lordbucket.bucketbank.util;
 
-public class CreditCardUtil {
+public class CardNumberUtil {
     private static final String BANK_CODE = "44";
 
     public static String generateCardNumber(int accountId) {
