@@ -12,6 +12,7 @@ public class AccountDTO {
     private final int id;
     private final String cardNumber;
     private final UserSummaryDTO owner;
+    private final String displayName;
     private final Set<UserSummaryDTO> authorizedUsers;
     private final BigDecimal balance;
     private final boolean suspended;
@@ -22,6 +23,7 @@ public class AccountDTO {
         this.id = account.getId();
         this.cardNumber = account.getCardNumber();
         this.owner = new UserSummaryDTO(account.getOwner());
+        this.displayName = account.getDisplayName();
         this.authorizedUsers = account.getAuthorizedUsers()
                 .stream()
                 .map(UserSummaryDTO::new)  // Assuming UserSummaryDTO(User user) constructor exists
@@ -43,6 +45,8 @@ public class AccountDTO {
     public UserSummaryDTO getOwner() {
         return owner;
     }
+
+    public String getDisplayName() { return displayName; }
 
     public Set<UserSummaryDTO> getAuthorizedUsers() {
         return authorizedUsers;

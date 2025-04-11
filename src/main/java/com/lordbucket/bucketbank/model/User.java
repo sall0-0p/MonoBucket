@@ -5,10 +5,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Table(name = "users")
@@ -18,7 +15,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(nullable = false, unique = true, updatable = false)
+    @Column(nullable = false, unique = true)
     private String username;
 
     @Column(nullable = false)
@@ -31,10 +28,10 @@ public class User {
     private boolean suspended = false;
 
     @OneToMany(mappedBy="owner", cascade=CascadeType.ALL)
-    private List<Account> accountsOwned;
+    private List<Account> accountsOwned = new ArrayList<>();
 
     @ManyToMany(mappedBy="authorizedUsers")
-    private Set<Account> accessibleAccounts;
+    private Set<Account> accessibleAccounts = new HashSet<>();
 
     @CreatedDate
     @Temporal(TemporalType.TIMESTAMP)
@@ -81,6 +78,8 @@ public class User {
     public Date getUpdateTimestamp() {
         return updateTimestamp;
     }
+
+    public void setUsername(String username) { this.username = username; }
 
     public void setPinHash(String pinHash) {
         this.pinHash = pinHash;

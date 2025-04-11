@@ -8,6 +8,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -18,12 +19,15 @@ public class Account {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(nullable = false, unique = true, updatable = false)
-    private String cardNumber = CreditCardUtil.generateCardNumber(this.id);
+    @Column(unique = true, updatable = false)
+    private String cardNumber;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "user_id", updatable = false, nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User owner;
+
+    @Column
+    private String displayName;
 
     @ManyToMany
     @JoinTable(
@@ -31,7 +35,7 @@ public class Account {
             joinColumns = @JoinColumn(name = "account_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    private Set<User> authorizedUsers;
+    private Set<User> authorizedUsers = new HashSet<>();
 
     @Column(nullable = false)
     private BigDecimal balance = BigDecimal.ZERO;
@@ -81,6 +85,8 @@ public class Account {
         return updatedTimestamp;
     }
 
+    public void setOwner(User user) { this.owner = user; }
+
     public void setAuthorizedUsers(Set<User> authorizedUsers) {
         this.authorizedUsers = authorizedUsers;
     }
@@ -91,6 +97,14 @@ public class Account {
 
     public void setSuspended(boolean suspended) {
         this.suspended = suspended;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
     }
 
     @Override
@@ -119,5 +133,10 @@ public class Account {
                 ", createdTimestamp=" + createdTimestamp +
                 ", updatedTimestamp=" + updatedTimestamp +
                 '}';
+    }
+
+    @PostPersist
+    public void assignCardNumber() {
+        this.cardNumber = CreditCardUtil.generateCardNumber(this.id);
     }
 }

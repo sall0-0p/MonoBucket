@@ -9,6 +9,7 @@ public class AccountSummaryDTO {
     private final int id;
     private final String cardNumber;
     private final UserSummaryDTO owner;
+    private final String displayName;
     private final BigDecimal balance;
     private final boolean suspended;
 
@@ -16,6 +17,7 @@ public class AccountSummaryDTO {
         this.id = account.getId();
         this.cardNumber = account.getCardNumber();
         this.owner = new UserSummaryDTO(account.getOwner());
+        this.displayName = account.getDisplayName();
         this.balance = account.getBalance();
         this.suspended = account.isSuspended();
     }
@@ -30,6 +32,10 @@ public class AccountSummaryDTO {
 
     public UserSummaryDTO getOwner() {
         return owner;
+    }
+
+    public String getDisplayName() {
+        return displayName;
     }
 
     public BigDecimal getBalance() {
