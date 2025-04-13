@@ -6,7 +6,7 @@ import com.lordbucket.bucketbank.dto.TransactionSummaryDTO;
 import java.math.BigDecimal;
 import java.util.Date;
 
-public final class TransactionDTO {
+public class TransactionDTO {
     private final int id;
     private final BigDecimal amount;
     private final boolean refunded;
