@@ -2,7 +2,11 @@ package com.lordbucket.bucketbank.service;
 
 import com.lordbucket.bucketbank.model.Account;
 import com.lordbucket.bucketbank.model.User;
+import com.lordbucket.bucketbank.model.transaction.DepositTransaction;
+import com.lordbucket.bucketbank.model.transaction.TransferTransaction;
+import com.lordbucket.bucketbank.model.transaction.WithdrawalTransaction;
 import com.lordbucket.bucketbank.repository.AccountRepository;
+import com.lordbucket.bucketbank.repository.TransactionRepository;
 import com.lordbucket.bucketbank.repository.UserRepository;
 import com.lordbucket.bucketbank.util.exceptions.*;
 import jakarta.transaction.Transactional;
@@ -15,11 +19,13 @@ import java.math.BigDecimal;
 public class AccountService {
     private final UserRepository userRepository;
     private final AccountRepository accountRepository;
+    private final TransactionRepository transactionRepository;
 
     @Autowired
-    public AccountService(UserRepository userRepository, AccountRepository accountRepository) {
+    public AccountService(UserRepository userRepository, AccountRepository accountRepository, TransactionRepository transactionRepository) {
         this.userRepository = userRepository;
         this.accountRepository = accountRepository;
+        this.transactionRepository = transactionRepository;
     }
 
     public Account createAccount(int userId) throws UserNotFoundException {
@@ -50,7 +56,11 @@ public class AccountService {
 
         account.setBalance(account.getBalance().add(amount));
         // TODO: Add a Transaction log.
+        DepositTransaction transaction = new DepositTransaction();
+        transaction.setAccount(account);
+        transaction.setAmount(amount);
 
+        transactionRepository.save(transaction);
         return accountRepository.save(account);
     }
 
@@ -68,7 +78,11 @@ public class AccountService {
 
         account.setBalance(account.getBalance().subtract(amount));
         // TODO: Add a Transaction log.
+        WithdrawalTransaction transaction = new WithdrawalTransaction();
+        transaction.setAccount(account);
+        transaction.setAmount(amount);
 
+        transactionRepository.save(transaction);
         return accountRepository.save(account);
     }
 
@@ -101,7 +115,13 @@ public class AccountService {
         sender.setBalance(sender.getBalance().subtract(amount));
         receiver.setBalance(receiver.getBalance().add(amount));
         // TODO: Add a Transaction Log.
+        TransferTransaction transaction = new TransferTransaction();
+        transaction.setSender(sender);
+        transaction.setReceiver(receiver);
+        transaction.setAmount(amount);
+        transaction.setNote(note);
 
+        transactionRepository.save(transaction);
         accountRepository.save(sender);
         accountRepository.save(receiver);
     }
