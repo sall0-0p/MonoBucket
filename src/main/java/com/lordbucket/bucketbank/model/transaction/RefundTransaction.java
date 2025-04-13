@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 @Entity
 @DiscriminatorValue("REFUND")
 public class RefundTransaction extends Transaction {
-    @OneToOne(optional = false)
+    @OneToOne
     @JoinColumn(name = "transaction_id")
     private Transaction originalTransaction;
 

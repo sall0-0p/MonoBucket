@@ -30,7 +30,7 @@ public class User {
     @ManyToMany(mappedBy="authorizedUsers")
     private Set<Account> accessibleAccounts = new HashSet<>();
 
-    @OneToOne(optional=false, cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "account_id", unique = true)
     private Account primaryAccount;
 

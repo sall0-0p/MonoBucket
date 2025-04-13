@@ -9,7 +9,7 @@ import jakarta.persistence.ManyToOne;
 @Entity
 @DiscriminatorValue("WITHDRAWAL")
 public class WithdrawalTransaction extends Transaction {
-    @ManyToOne(optional = false)
+    @ManyToOne
     @JoinColumn(name = "account_id")
     private Account account;
 

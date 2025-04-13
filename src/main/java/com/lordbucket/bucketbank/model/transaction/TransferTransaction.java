@@ -6,12 +6,12 @@ import jakarta.persistence.*;
 @Entity
 @DiscriminatorValue("TRANSFER")
 public class TransferTransaction extends Transaction {
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "account_id")
+    @ManyToOne
+    @JoinColumn(name = "sender_account_id")
     private Account sender;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "account_id")
+    @ManyToOne
+    @JoinColumn(name = "receiver_account_id")
     private Account receiver;
 
     @Column
