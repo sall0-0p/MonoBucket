@@ -74,7 +74,11 @@ public class Account {
     }
 
     public boolean isSuspended() {
-        return suspended;
+        if (this.owner.isSuspended()) {
+            return true;
+        } else {
+            return suspended;
+        }
     }
 
     public Date getCreatedTimestamp() {

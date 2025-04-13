@@ -88,6 +88,58 @@ public class UserService {
         return newPIN;
     }
 
+    @Transactional
+    public User changeUsername(int userId, String newUsername) throws UserSuspendedException {
+        User user = getUserById(userId);
+
+        if (user.isSuspended()) {
+            throw new UserSuspendedException();
+        }
+
+        user.setUsername(newUsername);
+
+        return userRepository.save(user);
+    }
+
+    @Transactional
+    public User changePrimaryAccount(int userId, int newPrimaryAccountId)
+            throws UserSuspendedException, AccountSuspendedException, UserNotFoundException, AccountNotFoundException, AccountOwnershipException {
+        User user = getUserById(userId);
+        Account account = getAccountById(newPrimaryAccountId);
+
+        if (user.isSuspended()) {
+            throw new UserSuspendedException();
+        }
+
+        if (account.isSuspended()) {
+            throw new AccountSuspendedException();
+        }
+
+        if (!account.getOwner().equals(user)) {
+            throw new AccountOwnershipException();
+        }
+
+        user.setPrimaryAccount(account);
+
+        return userRepository.save(user);
+    }
+    
+    public User suspend(int userId) throws UserNotFoundException {
+        User user = getUserById(userId);
+
+        user.setSuspended(true);
+
+        return userRepository.save(user);
+    }
+
+    public User reinstate(int userId) throws UserNotFoundException {
+        User user = getUserById(userId);
+
+        user.setSuspended(false);
+
+        return userRepository.save(user);
+    }
+
     public Account getAccountById(int accountId) throws AccountNotFoundException {
         return accountRepository.findById(accountId)
                 .orElseThrow(AccountNotFoundException::new);
