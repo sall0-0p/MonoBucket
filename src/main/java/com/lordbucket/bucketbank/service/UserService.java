@@ -40,11 +40,7 @@ public class UserService {
         return userRepository.save(savedUser);
     }
 
-    public User findUserById(int userId) throws UserNotFoundException {
-        return getUserById(userId);
-    }
-
-    public User findUserByUsername(String username) throws UserNotFoundException {
+    public User getUserByUsername(String username) throws UserNotFoundException {
         return userRepository.findByUsername(username)
                 .orElseThrow(UserNotFoundException::new);
     }
@@ -145,7 +141,7 @@ public class UserService {
                 .orElseThrow(AccountNotFoundException::new);
     }
 
-    private User getUserById(int userId) throws UserNotFoundException {
+    public User getUserById(int userId) throws UserNotFoundException {
         return userRepository.findById(userId)
                 .orElseThrow(UserNotFoundException::new);
     }

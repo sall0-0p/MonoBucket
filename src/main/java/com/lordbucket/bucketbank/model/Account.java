@@ -1,5 +1,6 @@
 package com.lordbucket.bucketbank.model;
 
+import com.lordbucket.bucketbank.model.listeners.AccountEntityListener;
 import com.lordbucket.bucketbank.util.CardNumberUtil;
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -13,13 +14,13 @@ import java.util.Set;
 
 @Entity
 @Table(name = "accounts")
-@EntityListeners(AuditingEntityListener.class)
+@EntityListeners({AuditingEntityListener.class, AccountEntityListener.class})
 public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(unique = true, updatable = false)
+    @Column(unique = true)
     private String cardNumber;
 
     @ManyToOne(optional = false)
@@ -89,6 +90,10 @@ public class Account {
         return updatedTimestamp;
     }
 
+    public void setCardNumber(String cardNumber) {
+        this.cardNumber = cardNumber;
+    }
+
     public void setOwner(User user) { this.owner = user; }
 
     public void setAuthorizedUsers(Set<User> authorizedUsers) {
@@ -137,10 +142,5 @@ public class Account {
                 ", createdTimestamp=" + createdTimestamp +
                 ", updatedTimestamp=" + updatedTimestamp +
                 '}';
-    }
-
-    @PostPersist
-    public void assignCardNumber() {
-        this.cardNumber = CardNumberUtil.generateCardNumber(this.id);
     }
 }

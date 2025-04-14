@@ -8,6 +8,7 @@ import com.lordbucket.bucketbank.model.transaction.WithdrawalTransaction;
 import com.lordbucket.bucketbank.repository.AccountRepository;
 import com.lordbucket.bucketbank.repository.TransactionRepository;
 import com.lordbucket.bucketbank.repository.UserRepository;
+import com.lordbucket.bucketbank.util.CardNumberUtil;
 import com.lordbucket.bucketbank.util.exceptions.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,9 @@ public class AccountService {
 
         Account account = new Account();
         account.setOwner(owner);
+
+//        account = accountRepository.save(account);
+//        account.setCardNumber(CardNumberUtil.generateCardNumber(account.getId()));
 
         return accountRepository.save(account);
     }
