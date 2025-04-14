@@ -27,7 +27,11 @@ public class UserService {
     }
 
     @Transactional
-    public User createUser(String username, String rawPIN) throws RuntimeException {
+    public User createUser(String username, String rawPIN) throws HashingException, UserAlreadyExistsException {
+        if (userRepository.findByUsername(username).isPresent()) {
+            throw new UserAlreadyExistsException("User with this username already exists.");
+        }
+
         User user = new User();
         user.setUsername(username);
         user.setPinHash(HashUtil.generateHash(rawPIN));
