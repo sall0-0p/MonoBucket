@@ -10,6 +10,7 @@ public class AccountSummaryDTO {
     private final String cardNumber;
     private final UserSummaryDTO owner;
     private final String displayName;
+    private final boolean merchant;
     private final boolean suspended;
 
     public AccountSummaryDTO(Account account) {
@@ -17,6 +18,7 @@ public class AccountSummaryDTO {
         this.cardNumber = account.getCardNumber();
         this.owner = new UserSummaryDTO(account.getOwner());
         this.displayName = account.getDisplayName();
+        this.merchant = account.isMerchant();
         this.suspended = account.isSuspended();
     }
 
@@ -38,6 +40,10 @@ public class AccountSummaryDTO {
 
     public boolean isSuspended() {
         return suspended;
+    }
+
+    public boolean isMerchant() {
+        return merchant;
     }
 
     @Override

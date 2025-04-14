@@ -219,6 +219,19 @@ public class AccountService {
         return accountRepository.save(account);
     }
 
+    public Account changeMerchantStatus(int accountId, boolean merchantStatus)
+            throws AccountNotFoundException, AccountSuspendedException {
+        Account account = getAccountById(accountId);
+
+        if (account.isSuspended()) {
+            throw new AccountSuspendedException();
+        }
+
+        account.setMerchant(merchantStatus);
+
+        return accountRepository.save(account);
+    }
+
     public Account getAccountById(int accountId) throws AccountNotFoundException {
         return accountRepository.findById(accountId)
                 .orElseThrow(AccountNotFoundException::new);

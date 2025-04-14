@@ -12,7 +12,9 @@ public class AccountDTO {
     private final int id;
     private final String cardNumber;
     private final UserSummaryDTO owner;
+    private final String cvc;
     private final String displayName;
+    private final boolean merchant;
     private final Set<UserSummaryDTO> authorizedUsers;
     private final BigDecimal balance;
     private final boolean suspended;
@@ -22,8 +24,10 @@ public class AccountDTO {
     public AccountDTO(Account account) {
         this.id = account.getId();
         this.cardNumber = account.getCardNumber();
+        this.cvc = account.getCvc();
         this.owner = new UserSummaryDTO(account.getOwner());
         this.displayName = account.getDisplayName();
+        this.merchant = account.isMerchant();
         this.authorizedUsers = account.getAuthorizedUsers()
                 .stream()
                 .map(UserSummaryDTO::new)  // Assuming UserSummaryDTO(User user) constructor exists
@@ -66,6 +70,14 @@ public class AccountDTO {
 
     public Date getUpdatedTimestamp() {
         return updatedTimestamp;
+    }
+
+    public boolean isMerchant() {
+        return merchant;
+    }
+
+    public String getCvc() {
+        return cvc;
     }
 
     @Override

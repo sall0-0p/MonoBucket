@@ -1,7 +1,7 @@
 package com.lordbucket.bucketbank.model;
 
 import com.lordbucket.bucketbank.model.listeners.AccountEntityListener;
-import com.lordbucket.bucketbank.util.CardNumberUtil;
+import com.lordbucket.bucketbank.util.CvcUtil;
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -27,8 +27,14 @@ public class Account {
     @JoinColumn(name = "user_id", nullable = false)
     private User owner;
 
+    @Column(nullable = false, updatable = false)
+    private String cvc = CvcUtil.generateCvc();
+
     @Column
     private String displayName;
+
+    @Column
+    private boolean merchant = false;
 
     @ManyToMany
     @JoinTable(
@@ -64,6 +70,10 @@ public class Account {
 
     public User getOwner() {
         return owner;
+    }
+
+    public String getCvc() {
+        return cvc;
     }
 
     public Set<User> getAuthorizedUsers() {
@@ -114,6 +124,14 @@ public class Account {
 
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
+    }
+
+    public boolean isMerchant() {
+        return merchant;
+    }
+
+    public void setMerchant(boolean merchant) {
+        this.merchant = merchant;
     }
 
     @Override
