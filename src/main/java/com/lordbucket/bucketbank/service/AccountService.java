@@ -224,6 +224,11 @@ public class AccountService {
                 .orElseThrow(AccountNotFoundException::new);
     }
 
+    public Account getAccountByCardNumber(String cardNumber) throws AccountNotFoundException {
+        return accountRepository.findByCardNumber(cardNumber)
+                .orElseThrow(AccountNotFoundException::new);
+    }
+
     private User getUserById(int userId) throws UserNotFoundException {
         return userRepository.findById(userId)
                 .orElseThrow(UserNotFoundException::new);
