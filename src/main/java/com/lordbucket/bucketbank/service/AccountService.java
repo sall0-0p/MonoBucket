@@ -200,10 +200,9 @@ public class AccountService {
     }
 
     @Transactional
-    public Account transferOwnershipOfAccount(int currentOwnerId, int accountId, int newOwnerId)
+    public Account transferOwnershipOfAccount(int accountId, int newOwnerId)
             throws UserNotFoundException, AccountNotFoundException, AccountSuspendedException {
         Account account = getAccountById(accountId);
-        User currentOwner = getUserById(currentOwnerId);
         User newOwner = getUserById(newOwnerId);
 
         if (account.isSuspended()) {

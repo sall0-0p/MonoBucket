@@ -164,7 +164,7 @@ public class AccountServiceTests {
 
         // Give user2 access first; then transfer ownership.
         accountService.giveUserAccessToAccount(user2.getId(), account.getId());
-        Account updated = accountService.transferOwnershipOfAccount(user1.getId(), account.getId(), user2.getId());
+        Account updated = accountService.transferOwnershipOfAccount(account.getId(), user2.getId());
         assertEquals(user2.getId(), updated.getOwner().getId());
         assertFalse(updated.getAuthorizedUsers().contains(user2));
     }
