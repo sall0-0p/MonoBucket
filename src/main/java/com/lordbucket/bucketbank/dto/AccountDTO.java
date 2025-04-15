@@ -1,6 +1,7 @@
 package com.lordbucket.bucketbank.dto;
 
 import com.lordbucket.bucketbank.model.Account;
+import com.lordbucket.bucketbank.util.Role;
 
 import java.math.BigDecimal;
 import java.util.Date;

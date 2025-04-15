@@ -3,8 +3,10 @@ package com.lordbucket.bucketbank.controller.api;
 import com.lordbucket.bucketbank.dto.AccountDTO;
 import com.lordbucket.bucketbank.dto.AccountSummaryDTO;
 import com.lordbucket.bucketbank.dto.requests.*;
+import com.lordbucket.bucketbank.middleware.annotation.RoleRequirement;
 import com.lordbucket.bucketbank.model.Account;
 import com.lordbucket.bucketbank.service.AccountService;
+import com.lordbucket.bucketbank.util.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -48,6 +50,7 @@ public class AccountController {
         return ResponseEntity.ok(new AccountDTO(account));
     }
 
+    @RoleRequirement(Role.ADMINISTRATOR)
     @PostMapping("/{id}/suspend")
     public ResponseEntity<AccountDTO> suspendAccount(@PathVariable int id) {
         Account account = accountService.suspend(id);

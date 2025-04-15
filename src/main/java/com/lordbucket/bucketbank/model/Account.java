@@ -2,6 +2,7 @@ package com.lordbucket.bucketbank.model;
 
 import com.lordbucket.bucketbank.model.listeners.AccountEntityListener;
 import com.lordbucket.bucketbank.util.CvcUtil;
+import com.lordbucket.bucketbank.util.Role;
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;

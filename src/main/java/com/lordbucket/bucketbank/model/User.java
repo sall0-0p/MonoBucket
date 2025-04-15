@@ -1,5 +1,6 @@
 package com.lordbucket.bucketbank.model;
 
+import com.lordbucket.bucketbank.util.Role;
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -42,6 +43,9 @@ public class User {
     @Temporal(TemporalType.TIMESTAMP)
     private Date updateTimestamp;
 
+    @Column
+    private Role role = Role.USER;
+
     public User() {}
 
     public int getId() {
@@ -76,6 +80,14 @@ public class User {
 
     public Date getUpdateTimestamp() {
         return updateTimestamp;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
     }
 
     public void setUsername(String username) { this.username = username; }

@@ -6,6 +6,7 @@ import com.lordbucket.bucketbank.repository.AccountRepository;
 import com.lordbucket.bucketbank.repository.UserRepository;
 import com.lordbucket.bucketbank.util.HashUtil;
 import com.lordbucket.bucketbank.util.PINUtil;
+import com.lordbucket.bucketbank.util.Role;
 import com.lordbucket.bucketbank.util.exceptions.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -136,6 +137,18 @@ public class UserService {
         User user = getUserById(userId);
 
         user.setSuspended(false);
+
+        return userRepository.save(user);
+    }
+
+    public User changeUserRole(int userId, Role role) {
+        User user = getUserById(userId);
+
+        if (user.isSuspended()) {
+            throw new AccountSuspendedException();
+        }
+
+        user.setRole(role);
 
         return userRepository.save(user);
     }

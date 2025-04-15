@@ -1,6 +1,7 @@
 package com.lordbucket.bucketbank.dto;
 
 import com.lordbucket.bucketbank.model.User;
+import com.lordbucket.bucketbank.util.Role;
 
 import java.util.Date;
 import java.util.List;
@@ -15,6 +16,7 @@ public class UserDTO {
     private final AccountSummaryDTO primaryAccount;
     private final List<AccountSummaryDTO> accountsOwned;
     private final Set<AccountSummaryDTO> accessibleAccounts;
+    private final Role role;
     private final Date createdTimestamp;
     private final Date updatedTimestamp;
 
@@ -31,6 +33,7 @@ public class UserDTO {
                 .stream()
                 .map(AccountSummaryDTO::new)
                 .collect(Collectors.toSet());
+        this.role = user.getRole();
         this.createdTimestamp = user.getCreatedTimestamp();
         this.updatedTimestamp = user.getUpdateTimestamp();
     }
@@ -63,6 +66,10 @@ public class UserDTO {
 
     public Date getUpdatedTimestamp() {
         return updatedTimestamp;
+    }
+
+    public Role getRole() {
+        return role;
     }
 
     @Override

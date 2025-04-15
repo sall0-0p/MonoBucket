@@ -9,6 +9,7 @@ import com.lordbucket.bucketbank.repository.AccountRepository;
 import com.lordbucket.bucketbank.repository.TransactionRepository;
 import com.lordbucket.bucketbank.repository.UserRepository;
 import com.lordbucket.bucketbank.util.CardNumberUtil;
+import com.lordbucket.bucketbank.util.Role;
 import com.lordbucket.bucketbank.util.exceptions.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
