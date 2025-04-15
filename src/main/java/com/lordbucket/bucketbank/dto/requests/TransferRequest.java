@@ -49,4 +49,14 @@ public class TransferRequest {
     public void setSenderAccountId(int senderAccountId) {
         this.senderAccountId = senderAccountId;
     }
+
+    @Override
+    public String toString() {
+        return "TransferRequest{" +
+                "senderAccountId=" + senderAccountId +
+                ", receiverAccountId=" + receiverAccountId +
+                ", amount=" + amount +
+                ", note='" + note + '\'' +
+                '}';
+    }
 }

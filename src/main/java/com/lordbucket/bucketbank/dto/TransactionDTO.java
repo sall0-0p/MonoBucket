@@ -61,6 +61,14 @@ public class TransactionDTO {
             this.account = null;
             this.note = null;
             this.originalTransaction = null;
+        } else if (transaction instanceof NCPTransaction ncp) {
+            this.type = "NCP";
+            this.sender = new AccountSummaryDTO(ncp.getSender());
+            this.receiver = null;
+            this.merchant = new AccountSummaryDTO(ncp.getMerchant());
+            this.account = null;
+            this.note = null;
+            this.originalTransaction = null;
         } else if (transaction instanceof RefundTransaction refund) {
             this.type = "REFUND";
             Transaction original = refund.getOriginalTransaction();
