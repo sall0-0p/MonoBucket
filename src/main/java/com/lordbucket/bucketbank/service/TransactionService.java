@@ -21,6 +21,88 @@ public class TransactionService {
     }
 
     @Transactional
+    public TransferTransaction transfer(int senderAccountId, int receiverAccountId, BigDecimal amount, String note)
+            throws InsufficientFundsException, AccountSuspendedException {
+        Account sender = getAccountById(senderAccountId);
+        Account receiver = getAccountById(receiverAccountId);
+
+        if (sender.isSuspended()) {
+            throw new AccountSuspendedException("Sender account is suspended.");
+        }
+
+        if (receiver.isSuspended()) {
+            throw new AccountSuspendedException("Receiver account is suspended.");
+        }
+
+        if (amount.scale() > 2) {
+            throw new InvalidAmountException("The precision of amounts in operations is limited by 1 cent.");
+        }
+
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new InvalidAmountException("Transfer amount has to be positive.");
+        }
+
+        if (sender.getBalance().subtract(amount).compareTo(BigDecimal.ZERO) < 0) {
+            throw new InsufficientFundsException();
+        }
+
+        sender.setBalance(sender.getBalance().subtract(amount));
+        receiver.setBalance(receiver.getBalance().add(amount));
+        // TODO: Add a Transaction Log.
+        TransferTransaction transaction = new TransferTransaction();
+        transaction.setSender(sender);
+        transaction.setReceiver(receiver);
+        transaction.setAmount(amount);
+        transaction.setNote(note);
+
+        accountRepository.save(sender);
+        accountRepository.save(receiver);
+        return transactionRepository.save(transaction);
+    }
+
+    @Transactional
+    public PoSTransaction transfer(int senderAccountId, int merchantId, BigDecimal amount) {
+        Account sender = getAccountById(senderAccountId);
+        Account merchant = getAccountById(merchantId);
+
+        if (sender.isSuspended()) {
+            throw new AccountSuspendedException("Sender account is suspended.");
+        }
+
+        if (merchant.isSuspended()) {
+            throw new AccountSuspendedException("Merchant account is suspended");
+        }
+
+        if (!merchant.isMerchant()) {
+            throw new MerchantLicenseMissingException();
+        }
+
+        if (amount.scale() > 2) {
+            throw new InvalidAmountException("The precision of amounts in operations is limited by 1 cent.");
+        }
+
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new InvalidAmountException("Transfer amount has to be positive.");
+        }
+
+        if (sender.getBalance().subtract(amount).compareTo(BigDecimal.ZERO) < 0) {
+            throw new InsufficientFundsException();
+        }
+
+        sender.setBalance(sender.getBalance().subtract(amount));
+        merchant.setBalance(merchant.getBalance().add(amount));
+        // TODO: Add a Transaction Log.
+        PoSTransaction transaction = new PoSTransaction();
+        transaction.setSender(sender);
+        transaction.setMerchant(merchant);
+        transaction.setAmount(amount);
+
+        accountRepository.save(sender);
+        accountRepository.save(merchant);
+        return transactionRepository.save(transaction);
+    }
+
+    @Transactional
     public void refundTransaction(int transactionId, String reason)
             throws TransactionNotFoundException, TransactionAlreadyRefundedException, AccountSuspendedException {
         Transaction transaction = findTransactionById(transactionId);
@@ -36,6 +118,11 @@ public class TransactionService {
             case TransferTransaction transferTransaction -> refundTransfer(reason, transaction, amount);
             default -> throw new InvalidOperationException("This type of Transaction is not refundable");
         }
+    }
+
+    private Account getAccountById(int accountId) throws AccountNotFoundException {
+        return accountRepository.findById(accountId)
+                .orElseThrow(AccountNotFoundException::new);
     }
 
     private void refundTransfer(String reason, Transaction transaction, BigDecimal amount) {

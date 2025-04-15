@@ -87,7 +87,7 @@ public class TransactionServiceTests {
     @Test
     public void testRefundDeposit() throws Exception {
         BigDecimal depositAmount = BigDecimal.valueOf(200);
-        Account updatedAcc = accountService.deposit(depositAccount.getId(), depositAmount);
+        Account updatedAcc = accountService.deposit(depositAccount.getId(), depositAmount).getAccount();
         // Retrieve the latest deposit transaction.
         DepositTransaction depositTxn = transactionRepository.findAll()
                 .stream()
@@ -112,7 +112,7 @@ public class TransactionServiceTests {
     @Test
     public void testRefundWithdrawal() throws Exception {
         BigDecimal withdrawAmount = BigDecimal.valueOf(300);
-        Account updatedAcc = accountService.withdraw(withdrawalAccount.getId(), withdrawAmount);
+        Account updatedAcc = accountService.withdraw(withdrawalAccount.getId(), withdrawAmount).getAccount();
         WithdrawalTransaction withdrawalTxn = transactionRepository.findAll()
                 .stream()
                 .filter(tx -> tx instanceof WithdrawalTransaction)
@@ -136,7 +136,7 @@ public class TransactionServiceTests {
     public void testRefundTransfer() throws Exception {
         BigDecimal transferAmount = BigDecimal.valueOf(150);
         // Perform a transfer from transferSender to transferReceiver.
-        accountService.transfer(transferSender.getId(), transferReceiver.getId(), transferAmount, "Test transfer");
+        transactionService.transfer(transferSender.getId(), transferReceiver.getId(), transferAmount, "Test transfer");
         TransferTransaction transferTxn = transactionRepository.findAll()
                 .stream()
                 .filter(tx -> tx instanceof TransferTransaction)

@@ -42,7 +42,7 @@ public class AccountService {
     }
 
     @Transactional
-    public Account deposit(int accountId, BigDecimal amount)
+    public DepositTransaction deposit(int accountId, BigDecimal amount)
             throws InvalidAmountException, AccountSuspendedException {
         Account account = getAccountById(accountId);
 
@@ -64,12 +64,12 @@ public class AccountService {
         transaction.setAccount(account);
         transaction.setAmount(amount);
 
-        transactionRepository.save(transaction);
-        return accountRepository.save(account);
+        accountRepository.save(account);
+        return transactionRepository.save(transaction);
     }
 
     @Transactional
-    public Account withdraw(int accountId, BigDecimal amount) throws InvalidAmountException {
+    public WithdrawalTransaction withdraw(int accountId, BigDecimal amount) throws InvalidAmountException {
         Account account = getAccountById(accountId);
 
         if (amount.compareTo(BigDecimal.ZERO) <= 0) {
@@ -86,48 +86,8 @@ public class AccountService {
         transaction.setAccount(account);
         transaction.setAmount(amount);
 
-        transactionRepository.save(transaction);
-        return accountRepository.save(account);
-    }
-
-    @Transactional
-    public void transfer(int senderAccountId, int receiverAccountId, BigDecimal amount, String note)
-            throws InsufficientFundsException, AccountSuspendedException {
-        Account sender = getAccountById(senderAccountId);
-        Account receiver = getAccountById(receiverAccountId);
-
-        if (sender.isSuspended()) {
-            throw new AccountSuspendedException("Sender account is suspended.");
-        }
-
-        if (receiver.isSuspended()) {
-            throw new AccountSuspendedException("Receiver account is suspended.");
-        }
-
-        if (amount.scale() > 2) {
-            throw new InvalidAmountException("The precision of amounts in operations is limited by 1 cent.");
-        }
-
-        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new InvalidAmountException("Transfer amount has to be positive.");
-        }
-
-        if (sender.getBalance().subtract(amount).compareTo(BigDecimal.ZERO) < 0) {
-            throw new InsufficientFundsException();
-        }
-
-        sender.setBalance(sender.getBalance().subtract(amount));
-        receiver.setBalance(receiver.getBalance().add(amount));
-        // TODO: Add a Transaction Log.
-        TransferTransaction transaction = new TransferTransaction();
-        transaction.setSender(sender);
-        transaction.setReceiver(receiver);
-        transaction.setAmount(amount);
-        transaction.setNote(note);
-
-        transactionRepository.save(transaction);
-        accountRepository.save(sender);
-        accountRepository.save(receiver);
+        accountRepository.save(account);
+        return transactionRepository.save(transaction);
     }
 
     public Account suspend(int accountId) throws AccountNotFoundException {

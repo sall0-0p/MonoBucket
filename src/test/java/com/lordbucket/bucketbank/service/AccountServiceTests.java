@@ -34,7 +34,7 @@ public class AccountServiceTests {
     private AccountRepository accountRepository;
 
     @Autowired
-    private TransactionRepository transactionRepository;
+    private TransactionService transactionService;
 
     private User user1;
     private User user2;
@@ -68,7 +68,7 @@ public class AccountServiceTests {
         account = accountRepository.save(account);
 
         BigDecimal depositAmount = BigDecimal.valueOf(250);
-        Account updated = accountService.deposit(account.getId(), depositAmount);
+        Account updated = accountService.deposit(account.getId(), depositAmount).getAccount();
         assertEquals(BigDecimal.valueOf(1250), updated.getBalance());
 
         Account finalAccount = account;
@@ -85,7 +85,7 @@ public class AccountServiceTests {
         account = accountRepository.save(account);
 
         BigDecimal withdrawAmount = BigDecimal.valueOf(300);
-        Account updated = accountService.withdraw(account.getId(), withdrawAmount);
+        Account updated = accountService.withdraw(account.getId(), withdrawAmount).getAccount();
         assertEquals(BigDecimal.valueOf(700), updated.getBalance());
 
         Account finalAccount = account;
@@ -108,7 +108,7 @@ public class AccountServiceTests {
         receiver = accountRepository.save(receiver);
 
         BigDecimal transferAmount = BigDecimal.valueOf(200);
-        accountService.transfer(sender.getId(), receiver.getId(), transferAmount, "Test transfer");
+        transactionService.transfer(sender.getId(), receiver.getId(), transferAmount, "Test transfer");
         Account updatedSender = accountRepository.findById(sender.getId()).orElseThrow();
         Account updatedReceiver = accountRepository.findById(receiver.getId()).orElseThrow();
 
@@ -118,7 +118,7 @@ public class AccountServiceTests {
         Account finalSender = sender;
         Account finalReceiver = receiver;
         Exception ex = assertThrows(InvalidAmountException.class,
-                () -> accountService.transfer(finalSender.getId(), finalReceiver.getId(), BigDecimal.valueOf(-50), "Invalid transfer"));
+                () -> transactionService.transfer(finalSender.getId(), finalReceiver.getId(), BigDecimal.valueOf(-50), "Invalid transfer"));
         assertTrue(ex.getMessage().contains("Transfer amount has to be positive."));
     }
 

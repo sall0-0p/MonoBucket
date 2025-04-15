@@ -1,8 +1,7 @@
 package com.lordbucket.bucketbank.dto;
 
 import com.lordbucket.bucketbank.model.transaction.*;
-import com.lordbucket.bucketbank.dto.AccountSummaryDTO;
-import com.lordbucket.bucketbank.dto.TransactionSummaryDTO;
+
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -18,6 +17,7 @@ public class TransactionDTO {
     // For transfers
     private final AccountSummaryDTO sender;
     private final AccountSummaryDTO receiver;
+    private final AccountSummaryDTO merchant;
     // Additional details
     private final String note;
     // For refund transactions, reference the original transaction
@@ -34,6 +34,7 @@ public class TransactionDTO {
             this.account = new AccountSummaryDTO(deposit.getAccount());
             this.sender = null;
             this.receiver = null;
+            this.merchant = null;
             this.note = null;
             this.originalTransaction = null;
         } else if (transaction instanceof WithdrawalTransaction withdrawal) {
@@ -41,6 +42,7 @@ public class TransactionDTO {
             this.account = new AccountSummaryDTO(withdrawal.getAccount());
             this.sender = null;
             this.receiver = null;
+            this.merchant = null;
             this.note = null;
             this.originalTransaction = null;
         } else if (transaction instanceof TransferTransaction transfer) {
@@ -48,26 +50,39 @@ public class TransactionDTO {
             this.sender = new AccountSummaryDTO(transfer.getSender());
             this.receiver = new AccountSummaryDTO(transfer.getReceiver());
             this.account = null;
+            this.merchant = null;
             this.note = transfer.getNote();
+            this.originalTransaction = null;
+        } else if (transaction instanceof PoSTransaction pos) {
+            this.type = "POS";
+            this.sender = new AccountSummaryDTO(pos.getSender());
+            this.receiver = null;
+            this.merchant = new AccountSummaryDTO(pos.getMerchant());
+            this.account = null;
+            this.note = null;
             this.originalTransaction = null;
         } else if (transaction instanceof RefundTransaction refund) {
             this.type = "REFUND";
             Transaction original = refund.getOriginalTransaction();
             if (original instanceof DepositTransaction depOrig) {
                 this.account = new AccountSummaryDTO(depOrig.getAccount());
+                this.merchant = null;
                 this.sender = null;
                 this.receiver = null;
             } else if (original instanceof WithdrawalTransaction witOrig) {
                 this.account = new AccountSummaryDTO(witOrig.getAccount());
+                this.merchant = null;
                 this.sender = null;
                 this.receiver = null;
             } else if (original instanceof TransferTransaction transOrig) {
                 this.sender = new AccountSummaryDTO(transOrig.getSender());
                 this.receiver = new AccountSummaryDTO(transOrig.getReceiver());
+                this.merchant = null;
                 this.account = null;
             } else {
                 this.account = null;
                 this.sender = null;
+                this.merchant = null;
                 this.receiver = null;
             }
             this.note = refund.getRefundReason();
@@ -77,6 +92,7 @@ public class TransactionDTO {
             this.account = null;
             this.sender = null;
             this.receiver = null;
+            this.merchant = null;
             this.note = null;
             this.originalTransaction = null;
         }
