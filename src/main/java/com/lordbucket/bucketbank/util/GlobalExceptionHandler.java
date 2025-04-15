@@ -1,4 +1,4 @@
-package com.lordbucket.bucketbank.exception;
+package com.lordbucket.bucketbank.util;
 
 import com.lordbucket.bucketbank.dto.ErrorResponse;
 import org.slf4j.Logger;
