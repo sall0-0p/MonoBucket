@@ -3,8 +3,6 @@ FROM amazoncorretto:17 AS build
 
 WORKDIR /app
 
-RUN yum install -y git && yum clean all
-
 COPY gradlew build.gradle settings.gradle ./
 COPY gradle/ gradle/
 
