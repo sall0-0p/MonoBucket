@@ -7,11 +7,28 @@ plugins {
 group = 'com.lordbucket'
 version = '0.0.1-SNAPSHOT'
 
+springBoot {
+    mainClass = 'com.lordbucket.bucketbank.BucketBankApplication'
+}
+
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(24)
+        languageVersion = JavaLanguageVersion.of(17)
     }
 }
+
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs += ['--enable-preview']
+}
+
+tasks.withType(Test).configureEach {
+    jvmArgs += ['--enable-preview']
+}
+
+tasks.named('bootRun') {
+    jvmArgs = ['--enable-preview']
+}
+
 
 configurations {
     compileOnly {

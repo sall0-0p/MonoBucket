@@ -5,6 +5,7 @@ services:
     image: 'docker-spring-boot-postgres:latest'
     build:
       context: .
+    restart: unless-stopped
     container_name: app
     depends_on:
       - db
@@ -15,16 +16,21 @@ services:
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=1907
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    volumes:
+      - pgdata:/var/lib/postgresql/data
 
     ports:
-      - "$LOCAL_PORT:$DOCKER_PORT"
+      - "8080:8080"
 
   db:
-    image: postgres
+    image: postgres:latest
     container_name: db
+    restart: always
     environment:
-      - POSTGRES_USER=posgres
+      - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=1907
       - POSTGRES_DB=bank_test
     ports:
-      - "$LOCAL_PORT:$DOCKER_PORT"
+      - "5432:5432"
+volumes:
+  pgdata:
